@@ -1,5 +1,5 @@
 import "./login.css";
-import axios from "axios";
+
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBurger } from "@fortawesome/free-solid-svg-icons";
@@ -10,9 +10,50 @@ import SuccessPopup from "./SuccessPopup";
 import ErrorAlert from "./ErrorAlert";
 import { useUser } from "./UserContext";
 import Footer from "./Footer";
-import apiURL from "../services/api";
-
+import { GoogleLogin } from "react-google-login";
+import { gapi } from "gapi-script";
+import API from "../services/api";
+import jwt_decode from "jwt-decode";
+import ReactDOM from "react-dom";
 function Login() {
+  const googleSuccess = async (res) => {
+    console.log(JSON.stringify(res));
+    const result = jwt_decode(res?.tokenObj.id_token);
+    const token = res?.tokenObj.id_token;
+    console.log(result);
+    try {
+      localStorage.setItem("userFirstName", result.name);
+      localStorage.setItem("token", JSON.stringify(token));
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const responseGoogle = (response) => {
+    console.log("vhhvjhv" + response);
+  };
+  /* eslint-disable */
+  useEffect(() => {
+    /* global google */
+    function start() {
+      gapi.client.init({
+        clientId:
+          "284988858980-9ij6jvpc1b2aepjkv8595tfc9ttib5cg.apps.googleusercontent.com",
+        scope: "",
+      });
+    }
+    gapi.load("client:auth2", start);
+    ReactDOM.render(
+      <GoogleLogin
+        clientId="284988858980-9ij6jvpc1b2aepjkv8595tfc9ttib5cg.apps.googleusercontent.com"
+        buttonText="Login With Google"
+        onSuccess={googleSuccess}
+        onFailure={responseGoogle}
+        cookiePolicy={"single_host_origin"}
+      />,
+      document.getElementById("signInDiv")
+    );
+  }, []);
   const { updateUserFirstName } = useUser();
   const [userFormData, setUserFormData] = useState({
     email: "",
@@ -44,7 +85,7 @@ function Login() {
 
   const handleSignup = async (userData) => {
     try {
-      const response = await axios.post(`${apiURL}/auth/signup`, userData);
+      const response = await API.post(`/auth/signup`, userData);
 
       if (response.status === 201) {
         console.log("User registered successfully:", response.data);
@@ -64,7 +105,7 @@ function Login() {
     const { email, password } = userFormData;
 
     try {
-      const response = await axios.post(`${apiURL}/auth/login`, {
+      const response = await API.post(`/auth/login`, {
         email,
         password,
       });
@@ -78,6 +119,7 @@ function Login() {
         setUserFirstName(data.user.firstName);
 
         localStorage.setItem("userFirstName", data.user.firstName);
+        localStorage.setItem("token", JSON.stringify(data.token));
         setLoading(true);
         setTimeout(() => {
           setLoading(false);
@@ -214,6 +256,7 @@ function Login() {
             message="Login Successful! Thank you for logging in."
           />
         </form>
+        <div id="signInDiv"></div>
       </div>
 
       <div className="row login-row2">

@@ -9,8 +9,7 @@ import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "./UserContext";
 import { useAdmin } from "./AdminContext";
-import axios from "axios";
-import apiURL from "../services/api";
+import API from "../services/api";
 
 function Navbar() {
   const { userFirstName, logoutUser } = useUser();
@@ -52,17 +51,19 @@ function Navbar() {
   const navbarClass = isDashboardRoute ? "white-navbar" : "black-navbar";
   const navLinkClass = isDashboardRoute ? "text-dark" : "text-white";
   const adminLinkClass = isDashboardRoute ? "" : "text-white";
-  const isUserLoggedIn = true;
-  const isAdminLoggedIn = true;
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(true);
 
   const fetchUserInfo = async () => {
     try {
-      const response = await axios.get(`${apiURL}/auth/userinfo`, {
-        withCredentials: true,
-      });
+      const response = await API.get(`/auth/userinfo`);
 
       if (response.status === 200) {
         setUserName(response.data.firstName);
+        if (localStorage.getItem("token")) {
+          setIsUserLoggedIn(true);
+          setIsAdminLoggedIn(false);
+        }
       }
     } catch (error) {
       console.error("Error fetching user information:", error);
@@ -72,20 +73,16 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       // Assuming your server has an endpoint for logout, e.g., "/auth/logout"
-      const response = await axios.post(`${apiURL}/auth/logout`, null, {
-        withCredentials: true,
-      });
 
-      if (response.status === 200) {
-        // Logout successful on the server
-        logoutUser(); // Unset user details in the UserContext
-        setUserName(""); // Clear local state for user name
-        // Additional code if needed (e.g., redirecting to login page)
-        navigate("/login"); // Redirect to the login page after logout
-      } else {
-        console.error("Logout failed with status:", response.status);
-        // Handle logout failure (e.g., display an error message)
-      }
+      // Logout successful on the server
+      // Unset user details in the UserContext
+      setUserName("");
+      setIsUserLoggedIn(false);
+      setIsAdminLoggedIn(false);
+      localStorage.clear(); // Clear local state for user name
+      // Additional code if needed (e.g., redirecting to login page)
+      navigate("/login");
+      logoutUser(); // Redirect to the login page after logout
     } catch (error) {
       console.error("Error logging out:", error);
       // Handle logout error (e.g., display an error message)
@@ -94,7 +91,7 @@ function Navbar() {
 
   const fetchAdminInfo = async () => {
     try {
-      const response = await axios.get(`${apiURL}/auth/admin/info`, {
+      const response = await API.get(`/auth/admin/info`, {
         withCredentials: true,
       });
 
@@ -286,15 +283,21 @@ function Navbar() {
                       top: "100%",
                     }}
                   >
-                    <li>
-                      <Link
-                        className="dropdown-item"
-                        to={isUserLoggedIn ? "/logout" : "/login"}
-                        onClick={handleLogout}
-                      >
-                        {isUserLoggedIn ? "Logout" : "Login"}
-                      </Link>
-                    </li>
+                    {!isUserLoggedIn ? (
+                      <li>
+                        <Link
+                          className="dropdown-item"
+                          to={isUserLoggedIn ? "/logout" : "/login"}
+                          onClick={handleLogout}
+                        >
+                          {isUserLoggedIn ? "Logout" : "Login"}
+                        </Link>
+                      </li>
+                    ) : (
+                      <button onClick={handleLogout} className="dropdown-item">
+                        Logout
+                      </button>
+                    )}
                   </ul>
                 </div>
               )}
@@ -321,14 +324,29 @@ function Navbar() {
                       marginLeft: "-1px",
                     }}
                   >
-                    <li>
-                      <Link
+                    {!isAdminLoggedIn ? (
+                      <li>
+                        <Link
+                          className="dropdown-item"
+                          to={isAdminLoggedIn ? "/logout" : "/adminlogin"}
+                        >
+                          {isAdminLoggedIn ? "Logout" : "Login"}
+                        </Link>
+                      </li>
+                    ) : (
+                      <button
+                        onClick={handleLogout}
                         className="dropdown-item"
-                        to={isAdminLoggedIn ? "/logout" : "/adminlogin"}
+                        style={{
+                          backgroundColor: "white", // Example background color
+                          color: "black", // Example text color
+                          padding: "10px", // Example padding
+                          // Add more styles as needed
+                        }}
                       >
-                        {isAdminLoggedIn ? "Logout" : "Login"}
-                      </Link>
-                    </li>
+                        Logout
+                      </button>
+                    )}
                   </ul>
                 </div>
               ) : (

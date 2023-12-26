@@ -1,12 +1,12 @@
 import "./adminLoginForm.css";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+
 import AdminSignupModal from "./AdminSignupModal";
 import LoadingSpinner from "./LoadingSpinner";
 import InvalidCredentialsAlert from "./InvalidCredentialsAlert";
 import AdminDashboardContainer from "./AdminDashboardContainer";
-import apiURL from "../services/api";
+import API from "../services/api";
 
 const AdminLoginForm = () => {
   const [showSignupModal, setShowSignupModal] = useState(false);
@@ -36,7 +36,7 @@ const AdminLoginForm = () => {
     const { email, password } = formData;
 
     try {
-      const response = await axios.post(`${apiURL}/auth/admin/login`, {
+      const response = await API.post(`/auth/admin/login`, {
         email,
         password,
       });
@@ -49,6 +49,7 @@ const AdminLoginForm = () => {
         setTimeout(() => {
           setLoading(false);
           setLoggedIn(true);
+          localStorage.setItem("user", JSON.stringify("admin"));
           navigate("/admin/dashboard");
         }, 3000);
       } else {

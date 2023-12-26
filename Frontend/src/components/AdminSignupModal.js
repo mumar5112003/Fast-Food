@@ -3,7 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import RegisterSuccessPopup from "./RegisterSuccessPopup";
 import RegisterFailedPopup from "./RegisterFailedPopup";
-import apiURL from "../services/api";
+import { apiURL } from "../services/api";
 
 const AdminSignupModal = ({ show, handleClose }) => {
   const [adminData, setAdminData] = useState({

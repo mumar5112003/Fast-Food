@@ -3,7 +3,7 @@ import { Modal, Button, Form, Alert } from "react-bootstrap";
 import axios from "axios";
 import CategoryEditSuccessPopup from "./CategoryEditSuccessPopup";
 import CategoryEditFailPopup from "./CategoryEditFailPopup";
-import apiURL from "../services/api";
+import { apiURL } from "../services/api";
 
 const EditCategoryModal = ({ show, handleClose, categoryData }) => {
   const [formData, setFormData] = useState({

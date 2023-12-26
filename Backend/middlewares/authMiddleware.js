@@ -1,35 +1,26 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const authMiddleware = (req, res, next) => {
-  // Get the token from the request headers
-  const token = req.headers.authorization;
-
-  // Check if token is not provided
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
-
+const auth = async (req, res, next) => {
   try {
-    // Verify the token
-    const decoded = jwt.verify(token, "thisKeyIsSupposedToBeSecret");
+    const token = req.headers.authorization.split(" ")[1];
+    const isCustomAuth = token.length < 500;
+    let decodedData;
 
-    // Attach the decoded user to the request object for later use in routes
-    req.user = decoded;
+    if (token && isCustomAuth) {
+      decodedData = jwt.verify(token, "thisKeyIsSupposedToBeSecret");
 
-    // Check if the route is restricted to admins
-    if (req.originalUrl.startsWith("/admin") && decoded.role !== "admin") {
-      return res
-        .status(403)
-        .json({ message: "Forbidden: Admin access required" });
+      req.userId = decodedData?.userId;
+
+      console.log(req.userId);
+    } else {
+      decodedData = jwt.decode(token);
+      req.userId = decodedData?.sub;
+      //   console.log(req.userId);
     }
-
-    next();
   } catch (error) {
-    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    console.log(error);
   }
+  next();
 };
 
-export default authMiddleware;
+export default auth;

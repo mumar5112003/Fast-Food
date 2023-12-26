@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+
 import EditReviewModal from "./EditReviewModal";
 import Footer from "./Footer";
-import apiURL from "../services/api";
+
+import API from "../services/api";
 
 function ShowReviews() {
   const [reviews, setReviews] = useState([]);
@@ -12,7 +13,7 @@ function ShowReviews() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`${apiURL}/review`);
+        const response = await API.get(`/review`);
         setReviews(response.data);
       } catch (error) {
         console.error("Error fetching reviews", error.message, error.response);
@@ -25,8 +26,8 @@ function ShowReviews() {
   // Function to handle edit submission
   const handleEditSubmit = async (formData) => {
     try {
-      const response = await axios.put(
-        `${apiURL}/reviews/${selectedReview._id}`,
+      const response = await API.put(
+        `/reviews/${selectedReview._id}`,
         formData
       );
       setReviews((prevReviews) =>

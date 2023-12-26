@@ -1,8 +1,8 @@
 import "./menuCard.css";
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import apiURL from "../services/api";
+
+import API, { apiURL } from "../services/api";
 
 function MenuCard() {
   const [menu, setMenu] = useState([]);
@@ -10,7 +10,7 @@ function MenuCard() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const response = await axios.get(`${apiURL}/menu`);
+        const response = await API.get(`/menu`);
         setMenu(response.data);
       } catch (error) {
         console.error("Error fetching menu:", error);

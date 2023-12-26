@@ -1,10 +1,10 @@
 import "./showReviews.css";
 import "./adminFeedback.css";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+
 import EditReviewModal from "./EditReviewModal";
 import DeleteReviewModal from "./DeleteReviewModal";
-import apiURL from "../services/api";
+import API from "../services/api";
 
 function ShowReviews() {
   const [reviews, setReviews] = useState([]);
@@ -17,7 +17,7 @@ function ShowReviews() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`${apiURL}/review`);
+        const response = await API.get(`/review`);
         setReviews(response.data);
       } catch (error) {
         console.error("Error fetching reviews", error.message, error.response);
@@ -35,7 +35,7 @@ function ShowReviews() {
   const confirmDelete = async () => {
     try {
       // Make a DELETE request to the server to delete the review
-      await axios.delete(`${apiURL}/review/${deleteReviewId}`);
+      await API.delete(`/review/${deleteReviewId}`);
 
       // Update the state to reflect the deletion
       setReviews((prevReviews) =>
@@ -60,10 +60,7 @@ function ShowReviews() {
 
   const handleEditSubmit = async (formData) => {
     try {
-      const response = await axios.put(
-        `${apiURL}/review/${selectedReview._id}`,
-        formData
-      );
+      const response = await API.put(`/review/${selectedReview._id}`, formData);
 
       // Update the state to reflect the changes
       setReviews((prevReviews) =>

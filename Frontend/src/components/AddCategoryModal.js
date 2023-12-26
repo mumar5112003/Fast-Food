@@ -1,9 +1,9 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import apiURL from "../services/api";
+
 import CategorySuccessMessage from "./CategorySuccessMessage";
 import CategoryFailedPopup from "./CategoryFailedPopup";
+import API from "../services/api";
 
 const AddCategoryModal = ({ show, handleClose, navigate }) => {
   const [formData, setFormData] = useState({
@@ -52,10 +52,7 @@ const AddCategoryModal = ({ show, handleClose, navigate }) => {
     data.append("description", formData.description);
 
     try {
-      const response = await axios.post(
-        `${apiURL}/menu/categories/upload`,
-        data
-      );
+      const response = await API.post(`/menu/categories/upload`, data);
 
       // Check if the response indicates success
       if (response.data.success) {

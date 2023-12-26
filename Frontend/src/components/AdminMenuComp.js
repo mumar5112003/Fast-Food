@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+
 import EditCategoryModal from "./EditCategoryModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import apiURL from "../services/api";
+import API, { apiURL } from "../services/api";
 
 function AdminMenuComp() {
   const [menu, setMenu] = useState([]);
@@ -15,7 +15,7 @@ function AdminMenuComp() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const response = await axios.get(`${apiURL}/menu`);
+        const response = await API.get(`/menu`);
         setMenu(response.data);
         console.log("Menu items:", response.data);
       } catch (error) {
@@ -33,9 +33,7 @@ function AdminMenuComp() {
 
   const handleDeleteConfirm = async () => {
     try {
-      const response = await axios.delete(
-        `${apiURL}/menu/${categoryToDelete._id}`
-      );
+      const response = await API.delete(`/menu/${categoryToDelete._id}`);
       console.log(response.data);
       // Remove the deleted category from the state
       setMenu((prevMenu) =>

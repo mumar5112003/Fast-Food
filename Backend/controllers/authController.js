@@ -8,7 +8,9 @@ dotenv.config();
 
 const generateToken = (userId, role) => {
   const secretKey = "thisKeyIsSupposedToBeSecret";
-  const token = jwt.sign({ userId, role }, secretKey, { expiresIn: "1h" });
+  const token = jwt.sign({ userId: userId, role: role }, secretKey, {
+    expiresIn: "1h",
+  });
   return token;
 };
 
@@ -71,7 +73,7 @@ export const login = async (req, res) => {
     }
 
     const token = generateToken(user._id, user.role);
-
+    console.log(token);
     res.status(200).json({ user: { firstName: user.firstName }, token });
   } catch (error) {
     console.error("Error during login:", error);
@@ -159,7 +161,7 @@ export const adminLogin = async (req, res) => {
 
 export const fetchUserInfo = async (req, res) => {
   try {
-    const userId = req.user.userId; // Assuming you store user ID in the token
+    const userId = req.userId; // Assuming you store user ID in the token
 
     const user = await UserModel.findById(userId);
 
@@ -176,7 +178,7 @@ export const fetchUserInfo = async (req, res) => {
 
 export const fetchAdminInfo = async (req, res) => {
   try {
-    const adminId = req.user.userId; // Assuming you store admin ID in the token
+    const adminId = req.userId; // Assuming you store admin ID in the token
 
     const admin = await AdminModel.findById(adminId);
 
